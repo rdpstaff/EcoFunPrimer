@@ -1,0 +1,13 @@
+.svn
+build
+dist
+*~
+*DS*
+#*#
+*tmp*
+lib/
+private/
+*.txt
+*.png
+*.tar
+jni/
