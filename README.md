@@ -6,9 +6,14 @@ The Primer Design terminal program produces thermodynamically stable primer pair
 
 Follow the instruction of (https://github.com/rdpstaff/RDPTools) to setup RDPTools. This will download PrimerDesign code and setup the ReadSeq dependency.
 
-Then, the user is required configure the config file which is located in the PrimerDesign folder. It will require the java JNI include directory and operating system specific JNI directory. You will find these directories in your JAVA_HOME directory. On mac operating system, you can find the java_home using the command bellow:
+Then, the user is required configure the config file which is located in the PrimerDesign folder. It will require the java JNI include directory and operating system specific JNI directory. You will find these directories in your JAVA_HOME directory. On mac operating system, you can find the java_home using the command below:
 ```
 /usr/libexec/java_home
+```
+
+You fine java_home on linux using the following command:
+```
+dirname $(dirname $(readlink -f $(which javac)))
 ```
 
 You can build the PrimerDesign jar using the ant command:
