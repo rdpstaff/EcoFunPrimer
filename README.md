@@ -24,7 +24,7 @@ The example config file has the java_jni_include and java_jni_include_os directo
 make
 ```
 
-You can build the PrimerDesign jar using the ant command:
+4. You can build the PrimerDesign jar using the ant command:
 ```
 ant -f PrimerDesign/build.xml jar
 ```
