@@ -8,6 +8,11 @@ Follow the instruction of (https://github.com/rdpstaff/RDPTools) to setup RDPToo
 
 Then, the user is required configure the config file which is located in the PrimerDesign folder. It will require the JNI include directory and operating system specific JNI directory.
 
+You can build the PrimerDesign jar using the ant command:
+```
+ant -f PrimerDesign/build.xml jar
+```
+
 ## Usage
 
 java -Xmx8g -jar /path/to/PrimerDesign.jar [--help] 
