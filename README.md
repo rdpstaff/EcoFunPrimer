@@ -11,7 +11,7 @@ The Primer Design terminal program produces thermodynamically stable primer pair
 /usr/libexec/java_home
 ```
 
-You fine java_home on linux using the following command:
+You can find java_home on linux using the following command:
 ```
 dirname $(dirname $(readlink -f $(which javac)))
 ```
