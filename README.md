@@ -4,9 +4,9 @@ The Primer Design terminal program produces thermodynamically stable primer pair
 
 ## Set Up
 
-Follow the instruction of (https://github.com/rdpstaff/RDPTools) to setup RDPTools. This will download PrimerDesign code and setup the ReadSeq dependency.
+1. Follow the instruction of (https://github.com/rdpstaff/RDPTools) to setup RDPTools. This will download PrimerDesign code and setup the ReadSeq dependency.
 
-Then, the user is required configure the config file which is located in the PrimerDesign folder. It will require the java JNI include directory and operating system specific JNI directory. You will find these directories in your JAVA_HOME directory. On mac operating system, you can find the java_home using the command below:
+2. Then, the user is required configure the config file which is located in the PrimerDesign folder. It will require the java JNI include directory and operating system specific JNI directory. You will find these directories in your JAVA_HOME directory. On mac operating system, you can find the java_home using the command below:
 ```
 /usr/libexec/java_home
 ```
@@ -14,6 +14,14 @@ Then, the user is required configure the config file which is located in the Pri
 You fine java_home on linux using the following command:
 ```
 dirname $(dirname $(readlink -f $(which javac)))
+```
+
+The example config file has the java_jni_include and java_jni_include_os directories for my computer. The java_home directory is ``` /Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/ ``` You will find the include directory in java_home in my case it is ``` /Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/include/ ```. In the JNI include directory, you will find operating system specific folder in my case it is ``` /Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/include/darwin ```. These directories are required to compile primer3 native code.
+
+3. Go to the PrimerDesign directory and compile the primer3 native code using the command bellow:
+
+```
+make
 ```
 
 You can build the PrimerDesign jar using the ant command:
