@@ -34,7 +34,6 @@ import org.apache.commons.cli.OptionBuilder;
 public class PrimerDesign {
 
     public static void main(String[] args) throws Exception {
-
         CommandLineParser parser = new BasicParser();
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("input")

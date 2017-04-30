@@ -56,9 +56,9 @@ public class Primer3Wrapper {
         }
         
         if("mac".equals(os)){
-            System.load(pathString + "/primer3/libPrimer3.dylib");
+            System.load(pathString + "libPrimer3.so");
         } else if("linux".equals(os)) {
-            System.load(pathString + "/primer3/libPrimer3.so");
+            System.load(pathString + "libPrimer3.so");
         }   
         
                 
