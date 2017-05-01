@@ -28,6 +28,7 @@ make
 ```
 ant -f PrimerDesign/build.xml jar
 ```
+After you run the command, you can find the PrimerDesign.jar in the PrimerDesign/dist folder.
 
 ## Usage
 
