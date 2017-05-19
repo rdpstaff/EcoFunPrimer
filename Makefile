@@ -4,7 +4,7 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
 	libt=-dynamiclib
 else
-	libt=-shared
+	libt=-shared -fPIC
 endif
 copy: libPrimer3.so
 	-(cp libPrimer3.so dist/)
