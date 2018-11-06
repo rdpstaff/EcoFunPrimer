@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 xingziye
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.EnumerateOligos;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.Oligo;
 import edu.msu.cme.rdp.primerdesign.selectprimers.algorithm.MaxDegenerationAlgo;
 import edu.msu.cme.rdp.primerdesign.selectprimers.algorithm.PSSM;
+import edu.msu.cme.rdp.primerdesign.utils.Primer3Wrapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import java.util.Set;
 
 /**
  *
- * @author xingziye, tift
+ * @author gunturus
  */
 public class EnumerateDegeneratePair {
 
@@ -44,6 +45,7 @@ public class EnumerateDegeneratePair {
     private int productLengthMin;
     private int productLengthMax;
     private int maxDegenNum;
+    private Primer3Wrapper primer3Wrapper;
 
     //For degen char values - new for this variable
     private DegenerateCharTable table;
@@ -100,7 +102,7 @@ public class EnumerateDegeneratePair {
         this.productLengthMax = max;
     }
 
-    public EnumerateDegeneratePair(EnumerateOligos eo1, EnumerateOligos eo2, int prodLengthMin, int prodLengthMax, int maxDegen) {
+    public EnumerateDegeneratePair(EnumerateOligos eo1, EnumerateOligos eo2, int prodLengthMin, int prodLengthMax, int maxDegen, Primer3Wrapper primer3) {
         eoFwd = eo1;
         eoRev = eo2;
         productLengthMin = prodLengthMin;
@@ -109,6 +111,7 @@ public class EnumerateDegeneratePair {
         pairDegenerateSet = new HashSet<>();
         maxDegenNum = maxDegen;
         table = new DegenerateCharTable();
+        primer3Wrapper = primer3;
 
     }
 
@@ -175,17 +178,13 @@ public class EnumerateDegeneratePair {
             }
 
             for (int revPos = revMin; revPos < revMax; revPos++) {
-
                 Map<Oligo, Set<String>> revTargetSetMap = eoRev.getTargetSetMap(revPos);
-
                 if (revTargetSetMap.isEmpty()) {
                     continue;
                 }
                 this.buildDegenerateSet(fwdTargetSetMap, revTargetSetMap, fwdPos, revPos);
             }
-
         }
-
     }
 
     private void buildDegenerateSet(Map<Oligo, Set<String>> fwdTargetSetMap, Map<Oligo, Set<String>> revTargetSetMap,
@@ -200,7 +199,6 @@ public class EnumerateDegeneratePair {
 
         for (Set<String> revSet : revTargetSetMap.values()) {
             revTargetSet.addAll(revSet);
-
         }
         Set<String> targetSet = new HashSet<>(fwdTargetSet);
         targetSet.retainAll(revTargetSet);
@@ -222,7 +220,9 @@ public class EnumerateDegeneratePair {
         }
 
         for (DegeneratePair pair : pairDegenerateSet) {
-
+            if(this.hetrodimerFilter(pair) == false) {
+                continue;
+            }
             if (!targetsHit.isEmpty()) {
                 Set<String> updatedTargetSet = new HashSet<>(pair.getTargetSet());
                 updatedTargetSet.removeAll(targetsHit);
@@ -360,5 +360,15 @@ public class EnumerateDegeneratePair {
         }
 
     }
-
+    
+    private boolean hetrodimerFilter(DegeneratePair pair ) {
+        for(Oligo fwdOligo : pair.getFwdInputOligos()) {
+            for(Oligo revOligo : pair.getRevInputOligos()) {
+                if(primer3Wrapper.calcHetrodimerTm(fwdOligo.getSeq(), revOligo.getSeq()) > 35) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

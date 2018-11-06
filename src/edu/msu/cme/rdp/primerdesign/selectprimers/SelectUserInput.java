@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 leotift
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@ import org.apache.commons.cli.CommandLine;
 
 /**
  *
- * @author leotift
+ * @author gunturus, leotift
  */
 public class SelectUserInput {
 
     private final File sequenceFastaFile;
     private final File outputFile;
     private final File treeParserFile;
+    private File customWeightFile = null;
     private final boolean isAmpliconGeneratedSlidingScale;
     private final int productLengthMin;
     private final int productLengthMax;
@@ -43,6 +44,7 @@ public class SelectUserInput {
     private final int polyRunFilterMax;
     private final double GCFilterMin;
     private final double GCFilterMax;
+    private final boolean isUniformWeightNeeded;
     private final boolean isHenikoffWeightNeeded;
     private final boolean isTreeWeightNeeded;
     private final double tempMin;
@@ -51,10 +53,10 @@ public class SelectUserInput {
     private final double homoMax;
     private final double sodiumConc;
     private final double magnesConc;
-    private final int maxMismatches;
+    private int maxMismatches=0;
     private final int assayMax;
     private final int degenMax;
-    private final String osType;
+    private String weightingMethod = "uniform";
 
     /**
      *
@@ -62,15 +64,6 @@ public class SelectUserInput {
      * @throws IOException
      */
     public SelectUserInput(CommandLine commandLine) throws IOException {
-        
-        if (commandLine.hasOption("os")) {
-
-            this.osType = commandLine.getOptionValue("os");
-
-        } else {
-            System.err.println("ERROR: " + "Program needs os type, used default: mac");
-            this.osType = "mac";
-        }
 
         if (commandLine.hasOption("output")) {
 
@@ -92,8 +85,19 @@ public class SelectUserInput {
 
             this.treeParserFile = null;
         }
-
-        //Set booleans to true if you would like this weighting method
+        
+        if (commandLine.hasOption("weightingMethod")) {
+            this.weightingMethod = commandLine.getOptionValue("weightingMethod");
+            if (!"uniform".equals(this.weightingMethod) 
+                    | !"gsc".equals(this.weightingMethod) 
+                    | !"henikoff".equals(this.weightingMethod) 
+                    | !"clustalw".equals(this.weightingMethod) 
+                    | !"voltageflow".equals(this.weightingMethod) ) {
+                System.err.println("ERROR: " + "invalid weightingMethod option");
+                System.exit(0);
+            }
+        }
+        
         if (commandLine.hasOption("isHenikoffWeightNeeded")) {
 
             String isHenikoff = commandLine.getOptionValue("isHenikoffWeightNeeded");
@@ -114,9 +118,34 @@ public class SelectUserInput {
                     this.isHenikoffWeightNeeded = false;
                    // System.err.println("ERROR: " + "Henikoff Weight method necessity not clear; check argument");
             }
-
         } else {
             this.isHenikoffWeightNeeded = false;
+        }
+
+        //Set booleans to true if you would like this weighting method
+        if (commandLine.hasOption("isUniformWeightNeeded")) {
+
+            String isHenikoff = commandLine.getOptionValue("isUniformWeightNeeded");
+            switch (isHenikoff) {
+                case "true":
+                    this.isUniformWeightNeeded = true;
+                    break;
+                case "t":
+                    this.isUniformWeightNeeded = true;
+                    break;
+                case "false":
+                    this.isUniformWeightNeeded = false;
+                    break;
+                case "f":
+                    this.isUniformWeightNeeded = false;
+                    break;
+                default:
+                    this.isUniformWeightNeeded = false;
+                   // System.err.println("ERROR: " + "Henikoff Weight method necessity not clear; check argument");
+            }
+
+        } else {
+            this.isUniformWeightNeeded = true;
 
         }
 
@@ -289,7 +318,7 @@ public class SelectUserInput {
 
         } else {
             //System.err.println("ERROR: " + "Program needs max num mismatches, used default: 2");
-            this.maxMismatches = 2;
+            this.maxMismatches = 0;
         }
 
         // Check input, store, and error output if problem
@@ -303,6 +332,12 @@ public class SelectUserInput {
             System.err.println("ERROR: " + "Program needs sequence input fasta file to start");
             this.sequenceFastaFile = null;
         }
+        
+        if (commandLine.hasOption("customWeightInput")) {
+            String weightFile = commandLine.getOptionValue("customWeightInput");
+            this.customWeightFile = new File(weightFile);
+        }
+            
 
         if (commandLine.hasOption("NoPoly3GCFilter")) {
 
@@ -458,6 +493,10 @@ public class SelectUserInput {
         //End
     }
 
+    public String getWeightingMethod() {
+        return this.weightingMethod;
+    }
+    
     public File getSequenceFastaFile() {
         return this.sequenceFastaFile;
     }
@@ -469,6 +508,10 @@ public class SelectUserInput {
     public File getTreeParserFile() {
         return this.treeParserFile;
     }
+    
+    public File getCustomWeightFile() {
+        return this.customWeightFile;
+    }
 
     public boolean getIsProductSlidingScale() {
         return this.isAmpliconGeneratedSlidingScale;
@@ -476,6 +519,10 @@ public class SelectUserInput {
 
     public boolean getIsHenikoff() {
         return this.isHenikoffWeightNeeded;
+    }
+    
+    public boolean getIsUniform() {
+        return this.isUniformWeightNeeded;
     }
 
     public boolean getIsNoTEnd() {
@@ -555,7 +602,7 @@ public class SelectUserInput {
     public double getHomoDimerTemp() {
         return this.homoMax;
     }
-
+    
     public int getNumMaxMismatches() {
         return this.maxMismatches;
     }
@@ -566,10 +613,6 @@ public class SelectUserInput {
 
     public int getNumMaxDegen() {
         return this.degenMax;
-    }
-    
-    public String getOSType() {
-        return this.osType;
     }
 
 }

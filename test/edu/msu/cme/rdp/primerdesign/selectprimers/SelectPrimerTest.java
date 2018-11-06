@@ -32,7 +32,7 @@ import org.junit.Test;
 
 /**
  *
- * @author leotift
+ * @author gunturus
  */
 public class SelectPrimerTest {
     
@@ -83,7 +83,7 @@ public class SelectPrimerTest {
         Set<String> targetSet = new HashSet<>();
         
                
-        Primer3Wrapper primer3 = new Primer3Wrapper("mac", 50.0, 1.5);
+        Primer3Wrapper primer3 = new Primer3Wrapper( 50.0, 1.5);
                       
         Collections.sort(fwdList, new OligoTmComparator());
         Collections.sort(revList, new OligoTmComparator());

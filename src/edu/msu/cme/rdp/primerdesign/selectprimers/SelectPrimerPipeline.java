@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Santosh Gunturu <gunturus at msu dot edu>
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,16 +31,17 @@ import edu.msu.cme.rdp.primerdesign.screenoligos.filter.TempRangeFilter;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.MismatchEnumeration;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.MismatchProperties;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.Oligo;
-import edu.msu.cme.rdp.primerdesign.selectprimers.algorithm.HenikoffWeight;
-import edu.msu.cme.rdp.primerdesign.selectprimers.algorithm.TreeParser;
 import edu.msu.cme.rdp.primerdesign.utils.Primer3Wrapper;
+import edu.msu.cme.rdp.primerdesign.weighting.*;
 import edu.msu.cme.rdp.readseq.readers.Sequence;
 import edu.msu.cme.rdp.readseq.readers.SequenceReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,50 +65,36 @@ public class SelectPrimerPipeline {
      */
     public static void main(SelectUserInput userInput) throws IOException, CloneNotSupportedException {
 
-      //      Read in from FASTA File  
+        //Read in from FASTA File  
         List<Sequence> allSequences = SequenceReader.readFully(userInput.getSequenceFastaFile());
         int allSeqsLength = allSequences.get(0).getSeqString().length();
         
-        
-        
-       
-//        //Remove n or N
-        char n = 'n';
-        char N = 'N';
-        
+        //Remove sequences with N or n
         for (int i = 0; i < allSequences.size(); i++) {
-            
             String thisSeq = allSequences.get(i).getSeqString();
             String seqName = allSequences.get(i).getSeqName();
             for (int j = 0; j < thisSeq.length(); j++) {
-                if (thisSeq.charAt(j) == N || thisSeq.charAt(j) == n) {
+                if (thisSeq.charAt(j) == 'N' || thisSeq.charAt(j) == 'n') {
                     allSequences.remove(allSequences.get(i));                
                     break;
                 }
             }
-            
         }
-
+        
         List<Integer> fwdPositions = new ArrayList();
         List<Integer> revPositions = new ArrayList();
         int fwdStartPos;
         int fwdEndPos;
         int revStartPos;
         int revEndPos;
-
+        
         if (userInput.getIsProductSlidingScale()) {
             //Positions for a sliding scale
             fwdStartPos = 0;
             fwdEndPos = allSeqsLength - userInput.getProductLengthMin();
 
-            revStartPos = 0;
-            revEndPos = allSeqsLength - userInput.getProductLengthMin();
-            
-//             fwdStartPos = 400;
-//            fwdEndPos = 800;
-//
-//            revStartPos = 400;
-//            revEndPos = 800;
+            revStartPos = userInput.getProductLengthMin();
+            revEndPos = allSeqsLength;
 
         } else {
             fwdStartPos = userInput.getForwardMinPos();
@@ -152,37 +139,41 @@ public class SelectPrimerPipeline {
         baseFilters.add(new GCContentFilter(userInput.getGCFilterMin(), userInput.getGCFilterMax()));
 
         //Primer object 
-        Primer3Wrapper primer3 = new Primer3Wrapper(userInput.getOSType(), userInput.getSodiumConc(), userInput.getMagnesiumConc());
+        Primer3Wrapper primer3 = new Primer3Wrapper(userInput.getSodiumConc(), userInput.getMagnesiumConc());
         MismatchProperties calcObj = new MismatchProperties(new Oligo(""));
 
-//        Track time of process
         DateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date1 = new Date();
         System.out.println("Oligos enumeration START at " + dateformat.format(date1));
-
+        System.out.println("Oligos enumeration FWD at " + dateformat.format(date1));
         //Initialize the forward EnumerateOligos object; last argument of "false"  means forward oligo
-        EnumerateOligos eoFwd1 = new EnumerateOligos(primer3, Sizes, fwdPositions, tempFilters, baseFilters, false, userInput.getNumMaxMismatches(), calcObj);
-
+        EnumerateOligos eoFwd1 = new EnumerateOligos(primer3, Sizes, fwdPositions,
+                tempFilters, baseFilters, false, userInput.getNumMaxMismatches(), calcObj);
+        System.out.println("Oligos enumeration REV at " + dateformat.format(date1));
         //Initialize the reverse EnumerateOligos object; last argument of "true"  means reverse oligo 
-        EnumerateOligos eoRev1 = new EnumerateOligos(primer3, Sizes, revPositions, tempFilters, baseFilters, true, userInput.getNumMaxMismatches(), calcObj);
+        EnumerateOligos eoRev1 = new EnumerateOligos(primer3, Sizes, revPositions,
+                tempFilters, baseFilters, true, userInput.getNumMaxMismatches(), calcObj);
 
         eoFwd1.addKmers(allSequences);
         eoRev1.addKmers(allSequences);
 
+        /*
         if (userInput.getNumMaxMismatches() != 0) {
             //Will incorporate mismatches
 
             eoFwd1 = MismatchEnumeration.includeMismatches(eoFwd1);
             eoRev1 = MismatchEnumeration.includeMismatches(eoRev1);
         }
-
-//        //Track time
+        */        
+        //Track time
         Date date2 = new Date();
         long time = (date2.getTime() - date1.getTime()) / 1000;
         System.out.println("Oligos enumeration DONE in " + time + " secs");
         System.out.println();
 
-       EnumerateDegeneratePair enumDegenPair = new EnumerateDegeneratePair(eoFwd1, eoRev1, userInput.getProductLengthMin(), userInput.getProductLengthMax(), userInput.getNumMaxDegen());
+       EnumerateDegeneratePair enumDegenPair = new EnumerateDegeneratePair(eoFwd1, eoRev1,
+               userInput.getProductLengthMin(), userInput.getProductLengthMax(),
+               userInput.getNumMaxDegen(), primer3);
 
         if (userInput.getIsProductSlidingScale()) {
             enumDegenPair.enumerateSlidingScaleWDegeneracy();
@@ -216,7 +207,6 @@ public class SelectPrimerPipeline {
             printBuildToView.addInfoToFile(userInput.getOutFile(), "Forward End Position: " + userInput.getForwardMaxPos());
             printBuildToView.addInfoToFile(userInput.getOutFile(), "Reverse Start Position: " + userInput.getReverseMinPos());
             printBuildToView.addInfoToFile(userInput.getOutFile(), "Reverse End Position: " + userInput.getReverseMaxPos());
-
         }
         printBuildToView.addInfoToFile(userInput.getOutFile(), "Filters: T end: " + userInput.getIsNoTEnd() + ", No Poly3GC: " + userInput.getIsNo3GCFilter() + ", Poly Run: " + userInput.getPolyRunMax() + ", GC Content:" + userInput.getGCFilterMin() + " - " + userInput.getGCFilterMax());
         printBuildToView.addInfoToFile(userInput.getOutFile(), "Oligo Min Size: " + userInput.getOligoMinSize());
@@ -234,167 +224,90 @@ public class SelectPrimerPipeline {
         printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
         
         //Done sending initial settings to out file
-
-        Set<String> uniformSeqsHit = new HashSet<>();
-
+        
+        Map<String, Double> weights = new HashMap<>();
+        Map<String, Double> weightMethodMap = new HashMap<>();
+        Weighting weightingType;
+        if(userInput.getWeightingMethod().equals("uniform")){
+            weightingType = new UniformWeighting(allSequences);
+            weightMethodMap = weightingType.getWeights();
+        }
+        else if(userInput.getWeightingMethod().equals("gsc") && userInput.getTreeParserFile() != null) {
+            weightingType = new GSCWeighting(userInput.getTreeParserFile());
+            weightMethodMap = weightingType.getWeights();
+        }
+        else if(userInput.getWeightingMethod().equals("clustalw") && userInput.getTreeParserFile() != null) {
+            weightingType = new DistanceWeighting(userInput.getTreeParserFile());
+            weightMethodMap = weightingType.getWeights();
+        }
+        else if(userInput.getWeightingMethod().equals("voltage") && userInput.getTreeParserFile() != null) {
+            weightingType = new OhmWeighting(userInput.getTreeParserFile());
+            weightMethodMap = weightingType.getWeights();
+        }
+        else if(userInput.getWeightingMethod().equals("henikoff") && userInput.getTreeParserFile() != null) {
+            weightingType = new HenikoffWeighting(allSequences);
+            weightMethodMap = weightingType.getWeights();
+        }
+        if(userInput.getCustomWeightFile() != null) {
+            Map<String, Double> customWeight;
+            ManualWeighting mw = new ManualWeighting(userInput.getCustomWeightFile());
+            customWeight = mw.getWeights();
+            weights = amplifier(customWeight, weightMethodMap);
+        }
+        else {
+            weights = weightMethodMap;
+        }
+        
+        double overallCoverage;
+        Set<String> seqsHit = new HashSet<>();
         int numDegTest = 0;
+        double weightSum = 0.0;
+        while (numDegTest < userInput.getNumMaxAssays() && weightSum < 1.0) {
+            enumDegenPair.selectDegeneratePrimers(seqsHit);
+            List<Set<String>> cover = MaxDegenerationAlgo.calWeightDegeneration(enumDegenPair, 1, weights, primer3, allSeqsLength, userInput.getOutFile(), printBuildToView);
+            Set<String> coverageSet = new HashSet<>();
 
-        while (numDegTest < userInput.getNumMaxAssays() && uniformSeqsHit.size() < allSequences.size()) {
-
-            enumDegenPair.selectDegeneratePrimers(uniformSeqsHit);
-
-            //     
-            //      List<Set<String>> listUniform = MaxDegenerationAlgo.calMaxDegeneration(enumRedunPair, 30, primer3, allSequences.get(0).getSeqString().length());
-            List<Set<String>> listUniform = MaxDegenerationAlgo.calUniformDegenerate(enumDegenPair, 1, allSeqsLength, userInput.getOutFile(), printBuildToView);
-
-            Set<String> coverageSetUniform = new HashSet<>();
-
-            for (Set<String> topSet : listUniform) {
-
-                coverageSetUniform.addAll(topSet);
+            for (Set<String> topSet : cover) {
+                coverageSet.addAll(topSet);
             }
-
-            if (coverageSetUniform.removeAll(uniformSeqsHit)) {
-                System.out.print("error emptying");
-            }
-
-            uniformSeqsHit.addAll(coverageSetUniform);
-            numDegTest++;
-
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "Sequences hit");
             
-//            StringBuilder stringBuilder = new StringBuilder ();
-//            
-//            for (String seqHit : coverageSetUniform) {
-//                stringBuilder.append("find searchtext=" + seqHit + ";");
-//                
-//            }
-//            printBuildToView.addInfoToFile(userInput.getOutFile(), stringBuilder.toString());
-
-            for (String seqHit : coverageSetUniform) {
-                printBuildToView.addInfoToFile(userInput.getOutFile(), seqHit);
+            numDegTest++;
+            printBuildToView.addInfoToFile(userInput.getOutFile(), "Sequences hit");
+            for (String seqHit : coverageSet) {
+                    weightSum += weights.get(seqHit);
+                    weights.remove(seqHit);
+                    printBuildToView.addInfoToFile(userInput.getOutFile(), seqHit);
+                    seqsHit.add(seqHit);
             }
-
+            
+            overallCoverage = seqsHit.size() / (double) allSequences.size();
             printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-
+            printBuildToView.addInfoToFile(userInput.getOutFile(), userInput.getWeightingMethod() + " weighted coverage: " + Double.toString(weightSum));
+            printBuildToView.addInfoToFile(userInput.getOutFile(), userInput.getWeightingMethod() + " Seq coverage: " + Double.toString(overallCoverage));
+            printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
         }
 
         Date date3 = new Date();
         long time3 = (date3.getTime() - date2.getTime()) / 1000;
         System.out.println("Pair enumeration and selection DONE in " + time3 + " secs");
-        System.out.println();
-        
-        double overallCoverage = uniformSeqsHit.size() / (double) allSequences.size();
-        printBuildToView.addInfoToFile(userInput.getOutFile(), "Overall uniform coverage: " + Double.toString(overallCoverage));
-
-        // Tree Weighted Method
-        if (userInput.getIsTreeWeight()) {
-
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "Phylogenetic Tree Weight Results: ");
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-            TreeParser treePars = TreeParser.run(userInput.getTreeParserFile());
-            double totalPossibleTreeWeight = 0.0;
-            for (String seq : treePars.getWeightMap().keySet()) {
-
-                totalPossibleTreeWeight += treePars.getWeightMap().get(seq);
-
-            }
-
-            int totalTreeWeightAssays = 0;
-            double treeWeightSum = 0.0;
-            
-            Set<String> treeSeqsHit = new HashSet<>();
-
-            while (totalTreeWeightAssays < userInput.getNumMaxAssays() && treeWeightSum < totalPossibleTreeWeight) {
-                
-                enumDegenPair.selectDegeneratePrimers(treeSeqsHit);
-
-                List<Set<String>> listTree = MaxDegenerationAlgo.calWeightDegeneration(enumDegenPair, totalTreeWeightAssays, treePars.getWeightMap(), primer3, allSeqsLength, userInput.getOutFile(), printBuildToView);
-
-                Set<String> coverageSetTree = new HashSet<>();
-
-                for (Set<String> topSet : listTree) {
-                    coverageSetTree.addAll(topSet);
-                }
-                
-                totalTreeWeightAssays++;
-
-                printBuildToView.addInfoToFile(userInput.getOutFile(), "Sequences hit");
-
-                for (String seqName : coverageSetTree) {
-                    treeWeightSum += treePars.getWeightMap().get(seqName);
-                    treePars.getWeightMap().remove(seqName);
-                    printBuildToView.addInfoToFile(userInput.getOutFile(), seqName);
-                    treeSeqsHit.add(seqName);
-                }
-           
-                printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-
-            }
-            
-            double overallTreeCoverage = treeWeightSum / totalPossibleTreeWeight;
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "Overall phylogenetic tree coverage: " + Double.toString(overallTreeCoverage));
-
-        }
-        
-        
-
-        // Establish HenikoffWeight
-        if (userInput.getIsHenikoff()) {
-
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "Henikoff Weight Results: ");
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-            Map<String, Double> weight = HenikoffWeight.calSequenceWeight(allSequences);
-            Set<String> heniSeqsHit = new HashSet<>();
-
-            int totalHenWeightAssays = 0;
-            double henikoffWeightSum = 0.0;
-
-            while (totalHenWeightAssays < userInput.getNumMaxAssays() && henikoffWeightSum < 1.0) {
-
-                enumDegenPair.selectDegeneratePrimers(heniSeqsHit);
-
-                List<Set<String>> listHenikoff = MaxDegenerationAlgo.calWeightDegeneration(enumDegenPair, 1, weight, primer3, allSeqsLength, userInput.getOutFile(), printBuildToView);
-
-                Set<String> coverageSetHenikoff = new HashSet<>();
-
-                for (Set<String> topSet : listHenikoff) {
-                    coverageSetHenikoff.addAll(topSet);
-                }
-                
-                totalHenWeightAssays++;
-
-                printBuildToView.addInfoToFile(userInput.getOutFile(), "Sequences hit");
-
-                for (String seqName : coverageSetHenikoff) {
-                    henikoffWeightSum += weight.get(seqName);
-                    weight.remove(seqName);
-                    heniSeqsHit.add(seqName);
-                    printBuildToView.addInfoToFile(userInput.getOutFile(), seqName);
-                }
-
-                printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
-
-            }
-            
-            
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "Overall Henikoff weighted coverage: " + Double.toString(henikoffWeightSum));
-
-        }
-        
-       
-
-        Date date4 = new Date();
-        
-        System.out.println("Finished at: " + dateformat.format(date4));
-        System.out.println();
-        long totalTime = (date4.getTime() - date1.getTime()) / 1000;
+        long totalTime = (date3.getTime() - date1.getTime()) / 1000;
         printBuildToView.addInfoToFile(userInput.getOutFile(), "Total Runtime: " + totalTime + " seconds");
-        printBuildToView.addInfoToFile(userInput.getOutFile(), "Finished at: " + dateformat.format(date4));
-
+        printBuildToView.addInfoToFile(userInput.getOutFile(), "Finished at: " + dateformat.format(date3));
         printBuildToView.printAllToFile(userInput.getOutFile());
-
     }
+    
+    public static Map<String, Double> amplifier(Map<String, Double> weight, Map<String, Double> weight2) throws FileNotFoundException {
+        double totalWeight = 0.0;
+      
+        for(String key : weight.keySet()) {
+            weight.put(key, weight2.get(key) * weight.get(key));
+            totalWeight = totalWeight + weight.get(key);
+        }
+        
+        for(String key : weight.keySet()) {
+            weight.put(key, weight.get(key)/totalWeight);
+        }
+        
+        return weight;
+    } 
 }

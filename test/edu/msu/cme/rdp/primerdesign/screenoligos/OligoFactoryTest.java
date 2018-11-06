@@ -32,7 +32,7 @@ public class OligoFactoryTest {
     @Before
     public void setUp() throws IOException {
         oligoFactory = new OligoFactory();
-        primer3 = new Primer3Wrapper("mac", 50.0, 1.5);
+        primer3 = new Primer3Wrapper(50.0, 1.5);
         testOligo = OligoFactory.createOligo("AGTAAGCGAAAGGCAGA", primer3, new MismatchProperties(new Oligo("")), 0);
     }
     

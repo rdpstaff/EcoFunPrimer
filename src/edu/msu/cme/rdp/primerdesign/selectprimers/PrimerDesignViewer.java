@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  *
- * @author leotift
+ * @author gunturus, leotift
  */
 public class PrimerDesignViewer {
     

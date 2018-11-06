@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 xingziye
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,15 @@
 package edu.msu.cme.rdp.primerdesign.selectprimers.algorithm;
 
 import edu.msu.cme.rdp.readseq.readers.Sequence;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Scanner;
 
 /**
  *
@@ -91,7 +94,6 @@ public class HenikoffWeight {
                 } else {
                     weight.put(seqName, weightMatrix[pos][i]);
                 }               
-
             }
         }
         
@@ -103,11 +105,31 @@ public class HenikoffWeight {
         for (Sequence seq : seqs) {
             double value = weight.get(seq.getSeqName())/sumAllSeqs;
             weight.put(seq.getSeqName(), value);
-
         }
         return weight;
     }
-
     
+    public static Map<String, Double> amplifier(Map<String, Double> weight, File customWeights) throws FileNotFoundException {
+        
+        Scanner sc = new Scanner(customWeights);
+        Map<String, Double> customWeightMap = new HashMap<>();
+        
+        while (sc.hasNextLine()) {
+            String[] lineArr = sc.nextLine().split("\\s+");
+            customWeightMap.put(lineArr[0],Double.parseDouble(lineArr[1]));
+        }
+        
+        double totalWeight = 0.0;
+      
+        for(String key : weight.keySet()) {
+            weight.put(key, customWeightMap.get(key) * weight.get(key));
+            totalWeight = totalWeight + weight.get(key);
+        }
+        
+        for(String key : weight.keySet()) {
+            weight.put(key, weight.get(key)/totalWeight);
+        }
+        
+        return weight;
+    }   
 }
-

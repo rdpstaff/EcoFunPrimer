@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  *
- * @author xingziye
+ * @author xingziye, gunturus
  */
 public class OligoTmComparator implements Comparator<Oligo> {
 

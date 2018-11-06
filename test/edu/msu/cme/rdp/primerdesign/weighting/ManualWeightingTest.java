@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 leotift
+ * Copyright (C) 2018 hashsham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.msu.cme.rdp.primerdesign.deadcode;
+package edu.msu.cme.rdp.primerdesign.weighting;
 
-import edu.msu.cme.rdp.primerdesign.deadcode.RDPStringBuilder;
+import java.io.File;
+import org.junit.Test;
 
 /**
  *
- * @author leotift
+ * @author hashsham
  */
-public class RDPStringClone extends RDPStringBuilder{
+public class ManualWeightingTest {
     
-    private static RDPStringClone instance = new RDPStringClone();
-          
-    private RDPStringClone(){}
-    
-    public static RDPStringClone getInstance() {
-        return instance; 
-    }
+    @Test
+    public void testManualWeighting(){
+        File f = new File("/home/hashsham/Desktop/testWeights.txt");
         
-    public RDPStringClone getRDPStringBuilder() {      
-        return (RDPStringClone) this.clone();
+        ManualWeighting mw = new ManualWeighting(f);
+        
+        System.out.println(mw.getWeights());
     }
-    
 }

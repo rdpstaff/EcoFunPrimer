@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 xingziye
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ import org.junit.Test;
 
 /**
  *
- * @author xingziye
+ * @author gunturus
  */
 public class EnumerateOligosTest {
     Sequence seq1, seq2;
@@ -54,7 +54,7 @@ public class EnumerateOligosTest {
         seq2 = new Sequence("", "", "ACGAGTATAC----GTAT---TGGCATCAATACGTGATCT");
         file1 = new File("/work/xingziye/NetBeansProjects/PrimerDesign/test/EnumerationTestSeqs.fasta");
         file2 = new File("/work/xingziye/NetBeansProjects/PrimerDesign/test/EnumerateTest.fasta");
-        primer3 = new Primer3Wrapper("mac", 50, 1.5);
+        primer3 = new Primer3Wrapper(50, 1.5);
     }
     
     @After

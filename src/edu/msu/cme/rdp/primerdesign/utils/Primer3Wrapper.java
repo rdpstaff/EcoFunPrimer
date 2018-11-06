@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  RDPStaff gunturus at msu dot edu>
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,39 +38,38 @@ public class Primer3Wrapper {
     private int _max_loop = 30; //
     private int _tm_method = 1; //
     private int _salt_method = 1; //
-    private String osType;
     
-    public Primer3Wrapper(String os, double sodiumMv, double magnesDv)  {
+    public Primer3Wrapper(double sodiumMv, double magnesDv)  {
         
         this._mv = sodiumMv;
         this._dv = magnesDv;
         
        
-        URL url = PrimerDesign.class.getProtectionDomain().getCodeSource().getLocation();
+        URL url = PrimerDesign.class.getProtectionDomain().getCodeSource()
+                .getLocation();
         
         String pathString = null;
         try {
             pathString = new File(url.toURI()).getParent();
         } catch (URISyntaxException ex) {
-            Logger.getLogger(Primer3Wrapper.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Primer3Wrapper.class.getName()).log(Level.SEVERE,
+                    null, ex);
         }
         
-        if("mac".equals(os)){
-            System.load(pathString + "/libPrimer3.so");
-        } else if("linux".equals(os)) {
-            System.load(pathString + "/libPrimer3.so");
-        }   
         
-                
+        System.load(pathString + "/libPrimer3.so");     
         
         initThermoPath(pathString + "/primer3_config/");
     }
     
     private static native void initThermoPath(String path);
     
-    private native double calcTm(String seq, double d, double mv, double dv, double n, int tm_method, int salt_method);
+    private native double calcTm(String seq, double d, double mv, double dv,
+            double n, int tm_method, int salt_method);
     
-    private native double calcThermo(String seq1, String seq2, int maxLoop, double mv, double dv, double dntp, double dna_conc, double temp, int temponly, int dimer, int aligntype);
+    private native double calcThermo(String seq1, String seq2, int maxLoop, 
+            double mv, double dv, double dntp, double dna_conc, double temp,
+            int temponly, int dimer, int aligntype);
     
     public double calcTemp(String seq) {
         return calcTm(seq, _dna, _mv, _dv, _dntp, _tm_method, _salt_method);
@@ -78,10 +77,12 @@ public class Primer3Wrapper {
     
     public double calcSpecial(String seq1, String seq2, String type) {
         if (type.equals("HAIRPIN")) {
-            return calcThermo(seq1, seq2, _max_loop, _mv, _dv, _dntp, _dna, _temp_c, 1, 0, 4);
+            return calcThermo(seq1, seq2, _max_loop, _mv, _dv, _dntp, _dna,
+                    _temp_c, 1, 0, 4);
         }
         else {
-            return calcThermo(seq1, seq2, _max_loop, _mv, _dv, _dntp, _dna, _temp_c, 1, 0, 1);
+            return calcThermo(seq1, seq2, _max_loop, _mv, _dv, _dntp, _dna
+                    , _temp_c, 1, 0, 1);
         }
     }
     
@@ -160,9 +161,5 @@ public class Primer3Wrapper {
     public int getSaltMeth() {
         return _salt_method;
     }
-    public String getOSType() {
-        return osType;
-    }
-    
     
 }

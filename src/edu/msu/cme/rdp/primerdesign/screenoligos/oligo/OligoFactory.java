@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Santosh Gunturu <gunturus at msu dot edu>
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,13 +42,7 @@ public class OligoFactory {
         
         
         Oligo oligo = new Oligo(seq);
-//        calcObj.setOligoToTest(oligo);
-//        calcObj.setTemplate(IUBUtilities.complement(seq));
-//        calcObj.setRevTemplate(IUBUtilities.reverseComplement(seq));
-//        calcObj.calcDeltaHAndS(calcObj.getOligoToTest());
-//        calcObj.calcTm(calcObj.getOligoToTest(), calcObj.getOligoToTest().getDeltaH(), calcObj.getOligoToTest().getDeltaS());
         oligo.setOligoTm(primer3.calcTemp(seq));
-     //   oligo.setOligoTm(calcObj.getOligoToTest().getTm());
         oligo.setHairpinTm(primer3.calcHairpinTm(seq));
         oligo.setHomodimerTm(primer3.calcHomodimerTm(seq));
         oligoMap.put(seq, oligo);

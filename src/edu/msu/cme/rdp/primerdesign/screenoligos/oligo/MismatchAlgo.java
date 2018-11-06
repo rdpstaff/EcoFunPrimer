@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 leotift
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.Set;
 
 /**
  * Main class that initiates the mismatch search algorithm.
- * @author tift
+ * @author gunturus, tift
  */
 public class MismatchAlgo {
     

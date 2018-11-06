@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 leotift
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  *
- * @author leotift
+ * @author leotift, gunturus
  */
 public class MismatchDuplex implements TableKeyToValue {
     

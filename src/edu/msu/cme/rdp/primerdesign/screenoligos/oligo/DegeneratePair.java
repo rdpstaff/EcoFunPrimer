@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  *
- * @author leotift
+ * @author gunturus, leotift
  */
 public class DegeneratePair{
     
@@ -228,6 +228,17 @@ public class DegeneratePair{
    
     public int revNumOligoCount() {
         return revInputOligos.size();
+    }
+    
+    public boolean calcHetrodimerFilter() {
+        
+        for (Oligo oligo : this.fwdInputOligos) {
+            for(Oligo revOligo : this.revInputOligos) {
+                
+            }
+        }
+        
+        return false;
     }
     
     

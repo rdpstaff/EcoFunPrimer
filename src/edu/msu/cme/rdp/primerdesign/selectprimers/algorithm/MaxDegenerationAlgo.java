@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 xingziye
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import java.util.Set;
 
 /**
  *
- * @author xingziye, gunturus, tift
+ * @author gunturus
  */
 public class MaxDegenerationAlgo {
 
@@ -74,10 +74,6 @@ public class MaxDegenerationAlgo {
                     Set<String> tempSet = new HashSet<>(TargetSets.get(j));
 
                     tempSet.retainAll(domain);
-
-                    if (tempSet.isEmpty()) {
-                        continue;
-                    }
       
                     int tempSize = tempSet.size();
                   
@@ -114,7 +110,6 @@ public class MaxDegenerationAlgo {
         List<Set<String>> TargetSets = new ArrayList<>();
         List<Set<String>> Cover = new ArrayList<>();
 
-        double maxHeterodimerTm = 35.0;
         SelectPrimerPairs selectPrimPair = new SelectPrimerPairs(ep);
 
         for (Set<String> tempSet : ep.getPairDegenerateMap().keySet()) {
@@ -148,7 +143,7 @@ public class MaxDegenerationAlgo {
                 tempSet.retainAll(domain);
 
                 for (String seqName : tempSet) {
-                    tempWeight += weight.get(seqName);
+                    tempWeight += weight.get(seqName); 
 
                 }
 

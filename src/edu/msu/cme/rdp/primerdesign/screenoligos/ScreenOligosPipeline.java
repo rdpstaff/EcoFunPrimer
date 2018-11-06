@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Santosh Gunturu <gunturus at msu dot edu>
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import edu.msu.cme.rdp.primerdesign.screenoligos.filter.OligoBaseFilter;
 import edu.msu.cme.rdp.primerdesign.screenoligos.filter.OligoTempFilter;
 import edu.msu.cme.rdp.primerdesign.screenoligos.filter.PolyRunFilter;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.EnumerateOligos;
-import edu.msu.cme.rdp.primerdesign.utils.OligosInfoGrapher;
 import edu.msu.cme.rdp.primerdesign.screenoligos.filter.TempRangeFilter;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.MismatchProperties;
 import edu.msu.cme.rdp.primerdesign.screenoligos.oligo.Oligo;
@@ -105,7 +104,7 @@ public class ScreenOligosPipeline {
                    
         
         //Primer object 
-        Primer3Wrapper primer3 = new Primer3Wrapper(userInput.getOSType(), userInput.getSodiumConc(), userInput.getMagnesiumConc());
+        Primer3Wrapper primer3 = new Primer3Wrapper(userInput.getSodiumConc(), userInput.getMagnesiumConc());
         MismatchProperties calcObj = new MismatchProperties(new Oligo(""));
         
          //Track time of process
@@ -123,7 +122,7 @@ public class ScreenOligosPipeline {
         System.out.println("Starting to compile data points: " + df.format(date));
         
 //        //Graphing
-        OligosInfoGrapher.coverageGrapher(eo, userInput.getGraphDirectory(), userInput.getNumMaxDegen());
+//        OligosInfoGrapher.coverageGrapher(eo, userInput.getGraphDirectory(), userInput.getNumMaxDegen());
         
         System.out.println("End compile data points: " + df.format(date));
         

@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  *
- * @author tift
+ * @author tift, gunturus
  */
 public class SelectPrimerPairs {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 leotift
+ * Copyright (C) 2018  Michigan State University <rdpstaff at msu dot edu>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,95 +17,59 @@
 
 package edu.msu.cme.rdp.primerdesign.selectprimers.algorithm;
 
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
+import java.util.ArrayList;
 import java.util.EmptyStackException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Vector;
 import javax.swing.JProgressBar;
 
 
 /**
+ * @author James
  *
- * @author tift
- * Parses the newick portion of a file and builds sequence weight map
- */
-
+ * Parses the newick portion of a file
+ * For nexus files, additional node-number mapping is needed to rename files
+ * Identification of a file as either newick or nexus determines contents
+ * 
+ * */
 public class TreeParser
 {
-
-    /** Line (and tree information) termination. */
-    private static final char lineTerminator = ';';
-          
-    private static Map<String, Double> weightMap;
         
+	/** Line (and tree information) termination. */
+	private static final char lineTerminator = ';';
+
+	/**
+	 * True: show debug output.  False: suppress printing.
+	 */
+	private static boolean debugOutput = false;
+        private static Map<String, Double> weightMap;
+        public Map<String, Double> getWeightMap()
+    {
+        return weightMap;
+    }
     private StreamTokenizer tokenizer;
     /**
      * Root node of the tree being parsed.  Must be initialized outside the tokenizer.
      */
     private TreeNode rootNode;
+    
     /**
      * Root node of the tree being parsed.  Must be initialized outside the tokenizer.
      */
     private static Tree treeObj;
-        
-    public Map<String, Double> getWeightMap()
-    {
-        return weightMap;
-    }
-     public Tree getTree()
-    {
-        return treeObj;
-    }
-     
-     public void setTree(Tree newTree)
-    {
-        this.treeObj = newTree;
-    }
     
-     /**
-     * Contains newick file
-     * 
+    /**
+     * For returning results inside action listeners.
      */
-    public static TreeParser run(File treeFile)
-    {
-                    
-        long start = System.currentTimeMillis();
-        
-        
-        try
-        {
-            BufferedReader r = new BufferedReader(new FileReader(treeFile));
-            TreeParser tp = new TreeParser(r);
-            treeObj = tp.tokenize(treeFile.length(), treeFile.getName());
-            for(int i = 1; i < treeObj.getAllTreeNodes().size(); i++) {
-                TreeNode node = treeObj.getAllTreeNodes().get(i);
-                if(!("".equals(node.getName()))){
-                buildWeightMap(node);
-                }
-            }
-            
-            
-            System.out.println("Parsed in " + ((System.currentTimeMillis() - start)/1000.0) + " s");
-            return tp;                                
-            
-        }
-        catch (FileNotFoundException e)
-        {
-            System.out.println("Couldn't find file: " + treeFile.getName());
-        }
-        return null;
-        
-    }
-      
-  
+    private Vector returnVector;  
+    
     /**
      * Initializes parsing of a tree by creating a tokenizer and setting default
      * properties (such as spacing, quoting characters).  
@@ -117,9 +81,7 @@ public class TreeParser
     public TreeParser(BufferedReader b)
     {
         tokenizer = new StreamTokenizer(b);
-        
         tokenizer.eolIsSignificant(false);
-        
         tokenizer.quoteChar('"');
 //        tokenizer.quoteChar('\''); // TODO: check quote layering, quoted quotes
         tokenizer.wordChars('\'', '\''); // quote problem, turn this into a prime symbol?
@@ -143,10 +105,58 @@ public class TreeParser
         // 97-122 = [a-z]
         tokenizer.wordChars('{', '~'); // 123-126
         // 127 = del
-        weightMap = new HashMap<> ();
     }
-    
-   
+    public static TreeParser run(File treeFile)
+    {
+                    
+        long start = System.currentTimeMillis();
+        
+        
+        try
+        {
+            BufferedReader r = new BufferedReader(new FileReader(treeFile));
+            TreeParser tp = new TreeParser(r);
+            treeObj = tp.tokenize(treeFile.length(), treeFile.getName());
+            
+            for(int i = 0; i < treeObj.nodes.size(); i++) {
+                TreeNode node = treeObj.getNodeByKey(i);
+                System.out.println(node.name);
+                System.out.println(node.weight);
+                //if(!("".equals(node.getName()))) {
+                //    buildWeightMap(node);
+                //}
+            }
+            
+        //    for(int i = 1; i < treeObj.getAllTreeNodes().size(); i++) {
+        //        TreeNode node = treeObj.getAllTreeNodes().get(i);
+        //        if(!("".equals(node.getName()))){
+        //        buildWeightMap(node);
+        //        }
+        //    }
+            
+            
+            System.out.println("Parsed in " + ((System.currentTimeMillis() - start)/1000.0) + " s");
+            return tp;                                
+            
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Couldn't find file: " + treeFile.getName());
+        }
+        return null;
+        
+    }
+    /**
+     * Debug printout function.  Avoid using the system calls and use this, and set flag
+     * {@link #debugOutput} depending on debugging or not.
+     * @param s Display the string, for debugging.
+     */
+    public void debugOutput(String s)
+    {
+        if (debugOutput)
+            System.out.println(s);
+    }
+
     /**
      * Adds node at the top of the stack to the tree.  TreeNode is already created based
      * on Newick properties.
@@ -168,33 +178,36 @@ public class TreeParser
 	    	topNode.label = name;
 	    	topNode.setName(name);
 	    }
-	    
+	    try
+	    {
+	    	TreeNode parent = (TreeNode) nodeStack.peek();
+	    	parent.addChild(topNode);
+	    }
+	    catch (EmptyStackException e)
+	    {
+	        if (topNode != rootNode)
+	            System.out.println("Parser error on node " + topNode);
+	    }
 	    topNode.setExtremeLeaves(); // sets leftmost and rightmost leaf, non-recursive
 	    topNode.setNumberLeaves(); // sets number of leaves, non-recursive
 	    topNode.linkNodesInPreorder();
 	    topNode.linkNodesInPostorder();
 	    return topNode;
     }
-    
-    /**
-     * Calculates the weight of an individual node based off of the position in the tree.
-     * 
-     * @param node node to weight
-     *  
-     */
+    /*
     public static void buildWeightMap(TreeNode node) {
         double finalWeight = node.getWeight();
-        if (node.getParent() != null) {
+        if (node.parent() != null) {
          
-            TreeNode parent = node.getParent();
+            TreeNode parent = node.parent();
    
              do {
                     double lastNodeWeight = parent.getWeight();               
-                    double weightChildSplit = lastNodeWeight/(parent.getNumberChildren());
+                    double weightChildSplit = lastNodeWeight/(parent.numberChildren());
                     finalWeight += weightChildSplit;
                     
                     if(parent != treeObj.getRoot()) {
-                        TreeNode grandParent = parent.getParent();
+                        TreeNode grandParent = parent.parent();
                         parent = grandParent;
                     }
                     
@@ -206,111 +219,66 @@ public class TreeParser
             System.out.println("Null value with this parent node" + node.getName());
         }
               	 
-    }
+    }*/
     
     /**
      * Newick tokenizer: converts a string (tree as a string) into a tree object.
      * The stream tokenizer should be initialized before calling this function.
      * @param fileLength Length of the file, for progress bar movements.
+     * For nexus files, this would be the relative position of the next semicolon = the size of the tree in bytes.
      * @param streamName Name of the tree or file that is being loaded.  Nexus files have names ("tree <name> = ((...));", newick trees are named by file name.
      * @param progressBar Reference to a progress bar widgit, embedded perhaps in place of the new canvas for this tree.  If this is null, create a new progress bar here.
      * @return Tree parsed from the stream.
      */
     public Tree tokenize(long fileLength, String streamName)
     {
-//    	Frame progFrame = null;
         final char openBracket = '(', closeBracket = ')', childSeparator = ',',
         	treeTerminator = lineTerminator, quote = '\'', doubleQuote = '"', infoSeparator = ':';
-                     
-        
+        int progress = 0;
         rootNode = new TreeNode();
-        rootNode.setWeight(0.0);
-        rootNode.setName("root");
-        
-        Tree treeObject = new Tree();
-        
-        treeObject.setRootNode(rootNode);
-        
-        treeObject.setFileName(streamName);
-        
-        treeObject.getAllTreeNodes().add(rootNode);
-        
+        Tree t = new Tree();
+        t.setRootNode(rootNode);
+        t.setFileName(streamName);
         Stack nodeStack = new Stack();
-        
         nodeStack.push(rootNode);
-        
         int thisToken;
-        StreamTokenizer tempTokenizer = null;
-        
         TreeNode lastNamed = null;
         boolean EOT = false;
         boolean nameNext = true;
-
-        try
-        {
+        int percentage = 0;
+	try {
             while (EOT == false &&
                     (thisToken = tokenizer.nextToken()) != StreamTokenizer.TT_EOF)
             {
             switch (thisToken)
             {
-
+//            	case quote:
             	case doubleQuote:
             	case StreamTokenizer.TT_WORD:
-            	    if (!nameNext) {                       
+            	    if (!nameNext)
             	        System.err.println("Error: didn't expect this name here: " + tokenizer.sval);
-                      
-                    }  
-                    String[] tokens = tokenizer.sval.split("[_]+");
-                    
-            	    lastNamed = popAndName(tokens[0], nodeStack);
-                    //lastNamed = popAndName(tokenizer.sval, nodeStack);
-                               	
-                    nameNext = false;
-                    break;
+            	    lastNamed = popAndName(tokenizer.sval, nodeStack);
+            		progress += tokenizer.sval.length();
+            		nameNext = false;
+            		break;
             	case StreamTokenizer.TT_NUMBER:
-            		if (nameNext) {
-                            tempTokenizer = tokenizer;
-                            if(tempTokenizer.nextToken() == StreamTokenizer.TT_WORD) {
-                                int tokenNumber = (int) tokenizer.nval;                                    
-                                String concatName = Integer.toString(tokenNumber).concat(tempTokenizer.sval);
-                                lastNamed = popAndName(concatName, nodeStack);
-                                tempTokenizer = null;
-                                nameNext = false;
-                                break;
-                            }
-                            
+            		if (nameNext)
             		    lastNamed = popAndName(tokenizer.sval, nodeStack);
-                         
-                        }
             		else
             		{
-            		    if (lastNamed != null) {
+            		    if (lastNamed != null)
             		        lastNamed.setWeight(tokenizer.nval);
-                                try
-                                {
-                                    TreeNode parent = (TreeNode) nodeStack.peek();
-                                    parent.addChild(lastNamed);
-                                    lastNamed.setParent(parent);
-                                }
-                                catch (EmptyStackException e)
-                                {
-                                    if (lastNamed != rootNode)
-                                        System.out.println("Parser error on node " + lastNamed);
-                                }
-                                treeObject.getAllTreeNodes().add(lastNamed);
-                                
-                            }   
             		    else
             		        System.err.println("Error: can't set value " + tokenizer.nval + " to a null node");
             		    lastNamed = null;
             		}
-            		
+            		progress += (new Double(tokenizer.nval).toString()).length();
             		nameNext = false;
             		break;
             	case infoSeparator:
             	    if (nameNext)
             	        lastNamed = popAndName(null, nodeStack);
-            	  
+            	    progress += 1;
             	    nameNext = false;
             	    break;
             	case treeTerminator:
@@ -318,44 +286,66 @@ public class TreeParser
             	    if (nameNext)
             	        lastNamed = popAndName(null, nodeStack);
             	    EOT = true;
-            	 
+            	    progress += 1;
             	    nameNext = false;
             	    break;
             	case openBracket:
             	    nodeStack.push(new TreeNode());
-            	 
+            	    progress += 1;
             	    nameNext = true;
             	    break;
             	case closeBracket:
             	    if (nameNext)
             	        lastNamed = popAndName(null, nodeStack);
-            
+            	    progress += 1;
             	    nameNext = true;
             	    break;
             	case childSeparator:
             	    if (nameNext)
             	        lastNamed = popAndName(null, nodeStack);
             	    nodeStack.push(new TreeNode());
-            
+            	    progress += 1;
             	    nameNext = true;
             	    break;
             	default:
-            	    System.out.println("default token problem: " + (char)thisToken);
+            	    debugOutput("default " + (char)thisToken);
             		break;
             }
-
-            }
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+        }
+        catch (IOException e) {
         }
         if (!nodeStack.isEmpty())
             System.err.println("Node stack still has " + nodeStack.size() + " things");
-
-        return treeObject;
+        t.postProcess();
+        return t;
+    }
+    
+    /**
+     * Test application function.
+     * @param args Program arguments.  Only first argument used (for filename).
+     */
+    public static void main(String[] args)
+    {
+        long start = System.currentTimeMillis();
+        File f = new File("/work/gunturus/nifPrimers/nifD/nifD_derep_aligned.tree");
+        
+        TreeParser treePars = TreeParser.run(f);
+        
+        /*try
+        {
+            BufferedReader r = new BufferedReader(new FileReader(f));
+            TreeParser tp = new TreeParser(r);
+            Tree t = tp.tokenize(f.length(), f.getName(), null);
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Couldn't find file: " + fileName);
+        }
+        System.out.println("Parsed in " + ((System.currentTimeMillis() - start)/1000.0) + " s");
+        System.exit(0);*/
     }
 
-
+    
    
 }

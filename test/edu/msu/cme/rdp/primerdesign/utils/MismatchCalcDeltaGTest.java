@@ -42,7 +42,7 @@ public class MismatchCalcDeltaGTest {
     @Test
     public void test() throws IOException {
       
-      Primer3Wrapper primer3 = new Primer3Wrapper("mac", 50.0, 1.5);
+      Primer3Wrapper primer3 = new Primer3Wrapper(50.0, 1.5);
       Oligo oligo1 = new Oligo("CGTTGA");
       System.out.println("Primer3 Tm: " + primer3.calcTemp(oligo1.getSeq()));
         

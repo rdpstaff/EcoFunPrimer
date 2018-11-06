@@ -29,7 +29,7 @@ import org.apache.commons.cli.OptionBuilder;
 
 /**
  *
- * @author tift
+ * @author gunturus, tift
  */
 public class PrimerDesign {
 
@@ -122,11 +122,11 @@ public class PrimerDesign {
                 .hasArg()
                 .withArgName("GCFilterMax")
                 .create());
-        options.addOption(OptionBuilder.withLongOpt("maxMismatches")
-                .withDescription("maxMismatches (default: 2) - Oligo mismatch maximum. Recommend setting between 0 and 3")
-                .hasArg()
-                .withArgName("maxMismatches")
-                .create());
+        //options.addOption(OptionBuilder.withLongOpt("maxMismatches")
+        //        .withDescription("maxMismatches (default: 2) - Oligo mismatch maximum. Recommend setting between 0 and 3")
+        //        .hasArg()
+        //        .withArgName("maxMismatches")
+        //        .create());
         options.addOption(OptionBuilder.withLongOpt("tempMin")
                 .withDescription("tempMin (default: 55) - Oligo min melting temperature")
                 .hasArg()
@@ -146,6 +146,16 @@ public class PrimerDesign {
                 .withDescription("homoMax (default: 35) - Homodimer maximum temperature")
                 .hasArg()
                 .withArgName("homoMax")
+                .create());
+        options.addOption(OptionBuilder.withLongOpt("customWeightInput")
+                .withDescription("File with custom weights for the input sequences. The file has two columns: unique sequence name before the first whitespace on header of the input alignment file and the respective weight for the sequence.")
+                .hasArg()
+                .withArgName("customWeightInput")
+                .create());
+        options.addOption(OptionBuilder.withLongOpt("isUniformWeightNeeded")
+                .withDescription("isUniformWeightNeeded (default: true) - Equal Weight is assigned to each. If custom weights are provided, the program will use them")
+                .hasArg()
+                .withArgName("isUniformWeightNeeded")
                 .create());
         options.addOption(OptionBuilder.withLongOpt("isHenikoffWeightNeeded")
                 .withDescription("isHenikoffWeightNeeded (default: false) - Henikoff Weighting Method. Set to 'true' or 't' if you would like this weighting method results as"

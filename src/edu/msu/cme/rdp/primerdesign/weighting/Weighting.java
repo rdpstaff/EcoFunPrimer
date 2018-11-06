@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 leotift
+ * Copyright (C) 2018 hashsham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,34 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.msu.cme.rdp.primerdesign.deadcode;
+package edu.msu.cme.rdp.primerdesign.weighting;
+
+import java.util.Map;
 
 /**
  *
- * @author leotift
+ * @author hashsham, gunturus
  */
-public class RDPStringBuilder implements Cloneable{
+public interface Weighting {
     
-    protected StringBuilder stringBuilder = new StringBuilder();
-          
-    protected RDPStringBuilder() {}
-       
-    public StringBuilder getStringBuilder() {
-        return this.stringBuilder;   
-    }
+    public void calcWeights();
     
-    @Override
-    public Object clone() {
-      Object clone = null;
-      
-      try {
-         clone = super.clone();
-         
-      } catch (CloneNotSupportedException e) {
-          System.out.println("Cloning sequence problem");
-      }
-      
-      return clone;
-    }
-  
+    public Map<String, Double> getWeights();
 }

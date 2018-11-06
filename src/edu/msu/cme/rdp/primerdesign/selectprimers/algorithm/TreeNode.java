@@ -1,53 +1,87 @@
 /*
- * Copyright (C) 2015 leotift
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ Copyright (c) 2002 Compaq Computer Corporation
+
+ SOFTWARE RELEASE
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ - Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+
+ - Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in the
+ documentation and/or other materials provided with the distribution.
+
+ - Neither the names of Compaq Research, Compaq Computer Corporation
+ nor the names of its contributors may be used to endorse or promote
+ products derived from this Software without specific prior written
+ permission.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+ IN NO EVENT SHALL COMPAQ COMPUTER CORPORATION BE LIABLE FOR ANY CLAIM,
+ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package edu.msu.cme.rdp.primerdesign.selectprimers.algorithm;
-
-
+import java.io.IOException;
 import java.util.*;
 
-
 /**
- *
- * A class representing a node of a phylognenetic tree. The tree that this
- * node belongs to is of type Tree. 
+ * A class representing a node of a (phylognenetic) tree. The tree that this
+ * node belongs to is of type Tree. Nodes have fields that store a pre- and
+ * post-ordering.
  * 
- * A TreeNode has a list of children, a leftmostleaf and a
+ * A TreeNode has a list of children, a unique key, a leftmostleaf and a
  * rightmost leaf
  * 
- * @author leotift
- * 
+ * @author Tamara Munzner, Li Zhang, Yunhong Zhou
+ * @version 2.2
+ * @see Tree
+ * @see GridCell
  */
-
-public class TreeNode implements Comparable {
+public class TreeNode {
 
 	/** Array of child nodes that are attached below this internal node.  Null if this is a leaf. */
-	protected ArrayList children; 
-								
+	protected ArrayList children; // eventually turn this into an array (need
+									// to change parser)
+
 	/** key is unique for nodes in one tree.  Keys are pre-ordered (root = 0, depth-traversal ordering). */
 	public int key;
 
-        /**
-         * Boolean to specify if the final weight has been set for this node
-         * based on its position in the tree
-         */
-        private boolean weightSet = false;
+	/** Height of font in font points used to draw the label. */
+	private int fontSize;
 
-	
+	/** Score for a node in [0,1] that corresponds to the topological similarity between two tree drawers.
+	 @see TreePairs#getBestCorrNodeScore(Tree, TreeNode, Tree, int) */
+	private Double bcnScore;
+
+	// /**
+	// * The offset of the point with respect to the cell. We only have
+	// * this for the row offset as we assume that the vertical edges
+	// * are all aligned. When computing the Y coordinate of a node, we
+	// * add nodeOffsetR to the pointOffset[1], a fixed parameter set by
+	// * AccordionDrawer.
+	// */
+	/**
+	 * The last frame that had a computed {@link #midYPosition}, for caching.
+	 */
+	protected int computedFrame; // store frame midYPosition was last
+									// calculated (needed to place parents)
+
+	/** Cached location (world-space) of the mid point in the vertical of a cell where the horizontal tree edge is drawn. 
+	 * This is (1/2 of cell size + minY) for leaves, midway between first and last child edge for internal nodes. */
+	private double midYPosition;
+
 	/**  Returns the minimum key value of nodes in the subtree rooted by this node.
 	 * @return The index of the smallest descendant node (which is the key for this node). */
 	// this is the key for this node
@@ -77,12 +111,18 @@ public class TreeNode implements Comparable {
 	public String getName() {
 		return name;
 	}
-        
-        public boolean isWeightSet() {
-                return weightSet;
-            
-        }
-                
+
+	/**
+	 * Tests to see if this node has a vertical or horizontal edge component.
+	 * @param xy 0/X for horizontal, 1/Y for vertical nodes.
+	 * @return True if this node has an edge in the chosen direction.  Only root nodes don't have a horizontal edge, and only leaves don't have vertical edges.
+	 */
+	protected boolean getEdge(int xy) {
+		if (xy == 0)
+			return !isRoot();
+		else
+			return !isLeaf();
+	}
 
 	/** Implements Comparable interface - sorts on key field. 
 	 * @param o The other object to compare this node to.
@@ -110,12 +150,10 @@ public class TreeNode implements Comparable {
 	public String label = ""; // always short form
 
 	/** Distance from this node to the root node. The root is at height 1. */
-	protected int height;
+	public int height;
 
-	/** Weight is the horizontal edge length for the edge immediately above the node.  
-         * Edge lengths are not determined by this number currently; all edges are stretched to make leaves right aligned, with minimal integral lengths. */
-	public double weight;
-
+	/** Weight is the horizontal edge length for the edge immediately above the node.  Edge lengths are not determined by this number currently; all edges are stretched to make leaves right aligned, with minimal integral lengths. */
+	public float weight = 0.0f;
 
 	/** Leftmost (minimum) leaf node under this internal node (or this node for leaves). */
 	public TreeNode leftmostLeaf;
@@ -139,6 +177,7 @@ public class TreeNode implements Comparable {
 	 */
 	public TreeNode() {
 		children = new ArrayList(2);
+		bcnScore = new Double(0.0);
 	}
 
 	/**
@@ -173,7 +212,7 @@ public class TreeNode implements Comparable {
 	 * Get the number of children under this node.
 	 * @return Number of nodes stored in the children array {@link #children}.
 	 */
-	public int getNumberChildren() {
+	public int numberChildren() {
 		return children.size();
 	}
 
@@ -227,17 +266,8 @@ public class TreeNode implements Comparable {
 	 * Get the parent for this node.
 	 * @return Value of {@link #parent}.
 	 */
-	public TreeNode getParent() {
+	public TreeNode parent() {
 		return parent;
-	}
-        
-        /**
-	 * Set the parent for this node.
-	 * 
-         * @param parentNode.
-	 */
-	public void setParent(TreeNode parentNode) {
-		this.parent = parentNode;
 	}
 
 	/**
@@ -246,14 +276,7 @@ public class TreeNode implements Comparable {
 	 * @param w New edge weight for this node, {@link #weight}.
 	 */
 	public void setWeight(double w) {
-		weight = w;
-	}
-        
-        /**
-	 * Set the boolean to true after final weight has been set.
-	 */
-	public void setFinalWeightSet() {
-		weightSet = true;
+		weight = (float) w;
 	}
 
 	/**
@@ -261,7 +284,7 @@ public class TreeNode implements Comparable {
 	 * Edge weights are not implemented currently for drawing.
 	 * @return Edge weight for this node, {@link #weight}.
 	 */
-	public double getWeight() {
+	public float getWeight() {
 		return weight;
 	}
 
@@ -279,6 +302,29 @@ public class TreeNode implements Comparable {
 		return (TreeNode) children.get(children.size() - 1);
 	}
 
+
+	/**
+	 * Long form printing for a single node. Used in conjunction with
+	 * {@link #printSubtree()} to display a whole subtree.
+	 * 
+	 */
+	public void print() {
+		if (name != null)
+			System.out.print("node name: " + name + "\t");
+		else
+			System.out.print("node name null,\t");
+		System.out.println("key: " + key);
+	}
+
+	/**
+	 * For debugging, prints the subtree contents, recursive.
+	 * 
+	 */
+	private void printSubtree() {
+		print();
+		for (int i = 0; i < children.size(); i++)
+			getChild(i).printSubtree();
+	}
 
 	/**
 	 * Set the extreme leaves for this node.  This is done in leaf->root direction, so all linking can be done in O(n) time.
@@ -299,7 +345,7 @@ public class TreeNode implements Comparable {
 		if (isLeaf())
 			return;
 		preorderNext = firstChild();
-		for (int i = 0; i < getNumberChildren() - 1; i++)
+		for (int i = 0; i < numberChildren() - 1; i++)
 			getChild(i).rightmostLeaf.preorderNext = getChild(i + 1);
 		// rightmostLeaf.preorderNext = null; // redundant
 	}
@@ -309,7 +355,7 @@ public class TreeNode implements Comparable {
 		if (isLeaf())
 			return;
 		// n.posorderNext = null; // redundant
-		for (int i = 0; i < getNumberChildren() - 1; i++)
+		for (int i = 0; i < numberChildren() - 1; i++)
 			getChild(i).posorderNext = getChild(i + 1).leftmostLeaf;
 		lastChild().posorderNext = this;
 	}
@@ -335,11 +381,24 @@ public class TreeNode implements Comparable {
 	 * @return String representation of this node.
 	 */
 	public String toString() {
-		
+		// String edge[] = {edges[0]!=null?edges[0].toString():"X",
+		// edges[1]!=null?edges[1].toString():"Y"};
 		return name + "(" + key + " @ " + height + ")";
 	}
 
+	/**
+	 * Set the {@link #bcnScore} for this node.
+	 * @param n New value of {@link #bcnScore}.
+	 */
+	public void setBcnScore(float n) {
+		bcnScore = new Double(n);
+	}
 
-
+	/**
+	 * Get the BCN score for this treenode.
+	 * @return Value of {@link #bcnScore} for this node.
+	 */
+	public Double getBcnScore() {
+		return bcnScore;
+	}
 }
-

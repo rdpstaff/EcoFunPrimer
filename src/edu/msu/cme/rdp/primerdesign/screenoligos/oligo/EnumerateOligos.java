@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Santosh Gunturu <gunturus at msu dot edu>
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ public class EnumerateOligos {
 
     public EnumerateOligos() throws IOException {
         calcObj = new MismatchProperties(new Oligo(""));
-        primer3Wrapper = new Primer3Wrapper("mac", 50.0, 1.5);
+        primer3Wrapper = new Primer3Wrapper(50.0, 1.5);
         int[] sizes = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
         kmerSizes = new ArrayList();
         positions = new ArrayList();
@@ -225,10 +225,8 @@ public class EnumerateOligos {
                         int endPosition = currentpos + stringBuilder.length();
                         buildOligoTargetMap(stringBuilder, currentpos, endPosition,sequence.getSeqName());
                     }
-
                 }
             }
-
         }
     }
 

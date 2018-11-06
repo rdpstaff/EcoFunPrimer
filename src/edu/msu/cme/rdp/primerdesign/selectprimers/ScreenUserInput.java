@@ -22,11 +22,10 @@ import org.apache.commons.cli.CommandLine;
 
 /**
  *
- * @author leotift
+ * @author gunturus, leotift
  */
 public class ScreenUserInput {
 
-    private final String dirToParserGraph;
     private final File sequenceFastaFile;
     private final double tempMin;
     private final double tempMax;
@@ -43,7 +42,6 @@ public class ScreenUserInput {
     private final double GCFilterMax;
     private final int degenMax;
     private final int maxMismatches;
-    private final String osType;
     /**
      *
      * @param commandLine
@@ -59,16 +57,6 @@ public class ScreenUserInput {
             //System.err.println("ERROR: " + "Program needs degen max, used default: 8");
             this.degenMax = 8;
         }
-        
-        if (commandLine.hasOption("os")) {
-
-            this.osType = commandLine.getOptionValue("os");
-
-        } else {
-           // System.err.println("ERROR: " + "Program needs os type, used default: mac");
-            this.osType = "mac";
-        }
-
 
         if (commandLine.hasOption("maxMismatches")) {
 
@@ -77,16 +65,6 @@ public class ScreenUserInput {
         } else {
             //System.err.println("ERROR: " + "Program needs max num mismatches, used default: 2");
             this.maxMismatches = 2;
-        }
-
-        if (commandLine.hasOption("GraphOutput")) {
-            this.dirToParserGraph = commandLine.getOptionValue("GraphOutput");
-            File testFile = new File(this.dirToParserGraph);
-
-        } else {
-            System.err.println("ERROR: " + "No valid graph output directory given");
-            this.dirToParserGraph = null;
-
         }
 
         // Check input, store, and error output if problem
@@ -258,10 +236,6 @@ public class ScreenUserInput {
         return this.sequenceFastaFile;
     }
 
-    public String getGraphDirectory() {
-        return this.dirToParserGraph;
-    }
-
     public boolean getIsNoTEnd() {
         return this.isNoTEnd;
     }
@@ -318,9 +292,6 @@ public class ScreenUserInput {
     
     public int getNumMaxMismatches() {
         return this.maxMismatches;
-    }
-    public String getOSType() {
-        return this.osType;
     }
 
 }

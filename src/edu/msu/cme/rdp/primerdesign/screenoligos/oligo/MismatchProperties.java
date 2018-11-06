@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Michigan State University Board of Trustees
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  *
- * @author leotift
+ * @author gunturus, leotift
  */
 public class MismatchProperties {
     
@@ -216,23 +216,6 @@ public class MismatchProperties {
          double Tm = dH / (dS + this.Rconstant * Math.log(oligoConc / concDivider)) - 273.15;
          this.oligoToTest.setOligoTm(Tm);
      }
-     
-// Not accurate - commonly used as an estimate 
-     
-//    public void calcTmFromDeltaG (Oligo oligo) {
-//        
-//        double DeltaG = oligo.getDeltaG();       
-//        int concDivider;
-//        if(isSymmetric(oligo.getSeq())) {
-//            concDivider = 1;
-//        } else {
-//            concDivider = 4;
-//        }
-//        double Tm =  (DeltaG / (this.Rconstant * (Math.log(this.dnaConc/concDivider)))) - 273.15;
-//        this.oligoToTest.setOligoTm(Tm);
-//        
-//    
-//    }
     
     public boolean isSymmetric (String mismatch) {
         if(mismatch.equals(this.revTemplate)) {

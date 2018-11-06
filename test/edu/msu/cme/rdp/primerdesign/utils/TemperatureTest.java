@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 xingziye
+ * Copyright (C) 2016 Michigan State University Board of Trustees
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ public class TemperatureTest {
     // public void hello() {}
     @Test
     public void testTm() throws IOException {
-        Primer3Wrapper primer3 = new Primer3Wrapper("mac", 50.0, 1.5);
+        Primer3Wrapper primer3 = new Primer3Wrapper(50.0, 1.5);
         Oligo oligo1 = new Oligo("TTCTCCTGCGAAGGCTA");
         Oligo oligo2 = new Oligo("TTCTCCTGCGAGGGCTA");
         Oligo oligo3 = new Oligo("TTTAGCTGTGAAGGATA");
