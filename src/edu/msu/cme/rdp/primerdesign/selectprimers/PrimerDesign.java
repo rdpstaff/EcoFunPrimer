@@ -147,34 +147,16 @@ public class PrimerDesign {
                 .hasArg()
                 .withArgName("homoMax")
                 .create());
+        options.addOption(OptionBuilder.withLongOpt("weightingMethod")
+                .withDescription("Sequence weighting method to remove bias in references sequence. "
+                        + "Options: gsc, henikoff, clustalw, voltageflow")
+                .hasArg()
+                .withArgName("weightingMethod")
+                .create());
         options.addOption(OptionBuilder.withLongOpt("customWeightInput")
                 .withDescription("File with custom weights for the input sequences. The file has two columns: unique sequence name before the first whitespace on header of the input alignment file and the respective weight for the sequence.")
                 .hasArg()
                 .withArgName("customWeightInput")
-                .create());
-        options.addOption(OptionBuilder.withLongOpt("isUniformWeightNeeded")
-                .withDescription("isUniformWeightNeeded (default: true) - Equal Weight is assigned to each. If custom weights are provided, the program will use them")
-                .hasArg()
-                .withArgName("isUniformWeightNeeded")
-                .create());
-        options.addOption(OptionBuilder.withLongOpt("isHenikoffWeightNeeded")
-                .withDescription("isHenikoffWeightNeeded (default: false) - Henikoff Weighting Method. Set to 'true' or 't' if you would like this weighting method results as"
-                        + "well as uniform results. Will give the highest weight to unique sequences based on bases at each position.")
-                .hasArg()
-                .withArgName("isHenikoffWeightNeeded")
-                .create());
-        options.addOption(OptionBuilder.withLongOpt("isTreeWeightNeeded")
-                .withDescription("isTreeWeightNeeded (default: false)- A phylogenetic tree weighting method.  Must include .tree file. Set to 'true' or 't' if you would like this weighting method results as"
-                        + "well as uniform results. Will give the highest weight to sequences closest to the root")
-                .hasArg()
-                .withArgName("isTreeWeightNeeded")
-                .create());
-        options.addOption(OptionBuilder.withLongOpt("subcommand")
-                .withDescription("select subcommand: select - file output of individual degenerate primer pairs with sequences theoretically hit / screen - graph output of the proportional theoretical "
-                        + "uniform coverage at each position \n"
-                        + "        (default: select)")
-                .hasArg()
-                .withArgName("subcommand")
                 .create());
         options.addOption(OptionBuilder.withLongOpt("os")
                 .withDescription("Operating System : linux/mac (default: mac)")

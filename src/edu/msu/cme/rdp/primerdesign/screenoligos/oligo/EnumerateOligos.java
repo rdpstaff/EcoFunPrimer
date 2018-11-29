@@ -144,6 +144,8 @@ public class EnumerateOligos {
      * @param primer3
      * @param kmerSizes
      * @param positions
+     * @param tempFilterList
+     * @param baseFilterList
      * @param reversed
      * @param mismatches
      * @param mismatchCalcProp

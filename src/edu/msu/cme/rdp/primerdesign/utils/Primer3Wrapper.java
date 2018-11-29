@@ -162,4 +162,9 @@ public class Primer3Wrapper {
         return _salt_method;
     }
     
+    public static void main(String[] args) throws Exception {
+        
+       Primer3Wrapper primer3 = new Primer3Wrapper(50.0, 1.5);
+        
+    }
 }

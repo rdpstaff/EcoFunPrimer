@@ -220,9 +220,9 @@ public class EnumerateDegeneratePair {
         }
 
         for (DegeneratePair pair : pairDegenerateSet) {
-            if(this.hetrodimerFilter(pair) == false) {
-                continue;
-            }
+            //if(this.hetrodimerFilter(pair) == false) {
+            //    continue;
+            //}
             if (!targetsHit.isEmpty()) {
                 Set<String> updatedTargetSet = new HashSet<>(pair.getTargetSet());
                 updatedTargetSet.removeAll(targetsHit);

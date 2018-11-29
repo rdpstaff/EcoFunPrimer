@@ -1,0 +1,75 @@
+Michigan State University: RDP Primer Design
+--------------------------------------------
+Program User Settings
+--------------------------------------------
+Fasta file: /work/gunturus/netbeans/PrimerDesignTestFiles/10.fasta
+Sliding Scale - t or f? true
+Tree Weighted - t or f? false
+Henikoff Weighted - t or f? false
+Product Min Length: 50
+Product Max Length: 280
+Filters: T end: false, No Poly3GC: true, Poly Run: 4, GC Content:0.35 - 0.7
+Oligo Min Size: 17
+Oligo Max Size: 23
+Max Number Mismatches: 0
+Melting Temp Min: 50.0
+Melting Temp Max: 55.0
+Homodimer Max: 35.0
+Hairpin Max: 35.0
+Sodium Conc: 50.0
+Magnesium Conc: 1.5
+Max Degeneracy for each primer: 1
+Max Num of Assays: 5
+Sequence Length: 2556
+--------------------------------------------
+1 Primer Pair: DegeneratePair{fwdOligo=[Oligo{seq=GGTGATGCTCTATGTCG}{ Tm:51.104295068781255}{EndPos:1308}
+] revOligo=[Oligo{seq=CGCTGATAGTCGTCGTT}{ Tm:53.57712353986443}{EndPos:1407}
+]}
+Sequences hit
+AYVM01000020_proteinid_ESW64469
+CP000463_proteinid_ABJ08452
+AYWP01000015_proteinid_ESY65944
+--------------------------------------------
+uniform weighted coverage: 0.30000000000000004
+uniform Seq coverage: 0.3
+--------------------------------------------
+1 Primer Pair: DegeneratePair{fwdOligo=[Oligo{seq=GTTGGAGAAGTTCATCGA}{ Tm:51.13460444762893}{EndPos:1681}
+] revOligo=[Oligo{seq=CCGTCATAGCCGTGATA}{ Tm:52.40930449187209}{EndPos:1791}
+]}
+Sequences hit
+AQPH01000002_proteinid_EPY03426
+GQ167279_proteinid_ACT67911
+--------------------------------------------
+uniform weighted coverage: 0.5
+uniform Seq coverage: 0.5
+--------------------------------------------
+1 Primer Pair: DegeneratePair{fwdOligo=[Oligo{seq=ATCAAGGACATGATCCACAT}{ Tm:53.629645470139906}{EndPos:384}
+] revOligo=[Oligo{seq=AAGTCCGACGTGAACTG}{ Tm:53.56006666264665}{EndPos:487}
+]}
+Sequences hit
+FQ859181_proteinid_CCB66896
+MPOK01000095_proteinid_OOH75520
+--------------------------------------------
+uniform weighted coverage: 0.7
+uniform Seq coverage: 0.7
+--------------------------------------------
+1 Primer Pair: DegeneratePair{fwdOligo=[Oligo{seq=ATTAGAGGATGTGCTTATGC}{ Tm:52.40305046105556}{EndPos:336}
+] revOligo=[Oligo{seq=AAGACAATGTCTCTTTCCTG}{ Tm:52.40305046105556}{EndPos:505}
+]}
+Sequences hit
+CAHT01000076_proteinid_CCG92393
+--------------------------------------------
+uniform weighted coverage: 0.7999999999999999
+uniform Seq coverage: 0.8
+--------------------------------------------
+1 Primer Pair: DegeneratePair{fwdOligo=[Oligo{seq=TCGAGAAGAGCCTGAGAG}{ Tm:54.57113905062039}{EndPos:1166}
+] revOligo=[Oligo{seq=GCTGGTAGTCGTCGTTG}{ Tm:54.57078506199167}{EndPos:1406}
+]}
+Sequences hit
+JGVW01000086_proteinid_KDB07443
+--------------------------------------------
+uniform weighted coverage: 0.8999999999999999
+uniform Seq coverage: 0.9
+--------------------------------------------
+Total Runtime: 69 seconds
+Finished at: 2018/11/19 03:45:25

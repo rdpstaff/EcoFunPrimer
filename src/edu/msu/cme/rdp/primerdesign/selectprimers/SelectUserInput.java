@@ -88,65 +88,14 @@ public class SelectUserInput {
         
         if (commandLine.hasOption("weightingMethod")) {
             this.weightingMethod = commandLine.getOptionValue("weightingMethod");
-            if (!"uniform".equals(this.weightingMethod) 
-                    | !"gsc".equals(this.weightingMethod) 
-                    | !"henikoff".equals(this.weightingMethod) 
-                    | !"clustalw".equals(this.weightingMethod) 
-                    | !"voltageflow".equals(this.weightingMethod) ) {
+            if (!"uniform".equals(this.weightingMethod.toLowerCase()) 
+                    | !"gsc".equals(this.weightingMethod.toLowerCase()) 
+                    | !"henikoff".equals(this.weightingMethod.toLowerCase()) 
+                    | !"clustalw".equals(this.weightingMethod.toLowerCase()) 
+                    | !"voltageflow".equals(this.weightingMethod.toLowerCase()) ) {
                 System.err.println("ERROR: " + "invalid weightingMethod option");
                 System.exit(0);
             }
-        }
-        
-        if (commandLine.hasOption("isHenikoffWeightNeeded")) {
-
-            String isHenikoff = commandLine.getOptionValue("isHenikoffWeightNeeded");
-            switch (isHenikoff) {
-                case "true":
-                    this.isHenikoffWeightNeeded = true;
-                    break;
-                case "t":
-                    this.isHenikoffWeightNeeded = true;
-                    break;
-                case "false":
-                    this.isHenikoffWeightNeeded = false;
-                    break;
-                case "f":
-                    this.isHenikoffWeightNeeded = false;
-                    break;
-                default:
-                    this.isHenikoffWeightNeeded = false;
-                   // System.err.println("ERROR: " + "Henikoff Weight method necessity not clear; check argument");
-            }
-        } else {
-            this.isHenikoffWeightNeeded = false;
-        }
-
-        //Set booleans to true if you would like this weighting method
-        if (commandLine.hasOption("isUniformWeightNeeded")) {
-
-            String isHenikoff = commandLine.getOptionValue("isUniformWeightNeeded");
-            switch (isHenikoff) {
-                case "true":
-                    this.isUniformWeightNeeded = true;
-                    break;
-                case "t":
-                    this.isUniformWeightNeeded = true;
-                    break;
-                case "false":
-                    this.isUniformWeightNeeded = false;
-                    break;
-                case "f":
-                    this.isUniformWeightNeeded = false;
-                    break;
-                default:
-                    this.isUniformWeightNeeded = false;
-                   // System.err.println("ERROR: " + "Henikoff Weight method necessity not clear; check argument");
-            }
-
-        } else {
-            this.isUniformWeightNeeded = true;
-
         }
 
         if (commandLine.hasOption("isTreeWeightNeeded")) {
