@@ -190,13 +190,13 @@ public class SelectPrimerPipeline {
         printBuildToView.addInfoToFile(userInput.getOutFile(), "--------------------------------------------");
         printBuildToView.addInfoToFile(userInput.getOutFile(), "Fasta file: " + userInput.getSequenceFastaFile().getAbsolutePath());
 
-        if (userInput.getIsTreeWeight()) {
-            printBuildToView.addInfoToFile(userInput.getOutFile(), "Tree file: " + userInput.getTreeParserFile().getAbsolutePath());
-        }
+        //if (userInput.getIsTreeWeight()) {
+     //       printBuildToView.addInfoToFile(userInput.getOutFile(), "Tree file: " + userInput.getTreeParserFile().getAbsolutePath());
+     //   }
 
         printBuildToView.addInfoToFile(userInput.getOutFile(), "Sliding Scale - t or f? " + userInput.getIsProductSlidingScale());
-        printBuildToView.addInfoToFile(userInput.getOutFile(), "Tree Weighted - t or f? " + userInput.getIsTreeWeight());
-        printBuildToView.addInfoToFile(userInput.getOutFile(), "Henikoff Weighted - t or f? " + userInput.getIsHenikoff());
+      //  printBuildToView.addInfoToFile(userInput.getOutFile(), "Tree Weighted - t or f? " + userInput.getIsTreeWeight());
+      //  printBuildToView.addInfoToFile(userInput.getOutFile(), "Henikoff Weighted - t or f? " + userInput.getIsHenikoff());
 
         if (userInput.getIsProductSlidingScale()) {
             printBuildToView.addInfoToFile(userInput.getOutFile(), "Product Min Length: " + userInput.getProductLengthMin());

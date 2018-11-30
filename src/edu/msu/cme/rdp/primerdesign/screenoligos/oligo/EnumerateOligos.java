@@ -481,8 +481,6 @@ public class EnumerateOligos {
 
         }
 
-    
-        
     }
 
 }
