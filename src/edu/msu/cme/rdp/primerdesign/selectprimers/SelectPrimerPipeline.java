@@ -252,7 +252,7 @@ public class SelectPrimerPipeline {
             Map<String, Double> customWeight;
             ManualWeighting mw = new ManualWeighting(userInput.getCustomWeightFile());
             customWeight = mw.getWeights();
-            weights = amplifier(customWeight, weightMethodMap);
+            weights = amplifier(weightMethodMap, customWeight);
         }
         else {
             weights = weightMethodMap;

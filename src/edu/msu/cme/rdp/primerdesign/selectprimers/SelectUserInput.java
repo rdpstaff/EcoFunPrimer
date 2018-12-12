@@ -230,7 +230,13 @@ public class SelectUserInput {
                 .withDescription("(default: 0.45) - G+C content filter minimum percent. Recommend leaving at default if unsure")
                 .hasArg()
                 .withArgName("boolean")
-                .create();       
+                .create();
+        
+        Option GCFilterMax =  OptionBuilder.withLongOpt("GCFilterMax")
+                .withDescription("(default: 0.70) - G+C content filter maximum percent. Recommend leaving at default if unsure")
+                .hasArg()
+                .withArgName("boolean")
+                .create();
         
         Option tempMin =  OptionBuilder.withLongOpt("tempMin")
                 .withDescription("tempMin (default: 55) - Oligo min melting temperature")
@@ -244,6 +250,7 @@ public class SelectUserInput {
         
         Option hairMax =  OptionBuilder.withLongOpt("hairMax")
                 .withDescription("(default: 35) - Hairpin maximum temperature")
+                .hasArg()
                 .create();
         
         Option homoMax =  OptionBuilder.withLongOpt("homoMax")
@@ -316,6 +323,7 @@ public class SelectUserInput {
                 .withDescription("Foward oligo maximum position to end enumeration. Required if SlidingScale is false")
                 .hasArg()
                 .create();
+        
         Option reverseMinPos =  OptionBuilder.withLongOpt("reverseMinPos")
                 .withDescription("Reverse oligo minimum position to begin enumeration. Required if SlidingScale is false")
                 .hasArg()
@@ -331,6 +339,7 @@ public class SelectUserInput {
         options.addOption(sodiumConc);
         options.addOption(homoMax);
         options.addOption(GCFilterMin);
+        options.addOption(GCFilterMax);
         options.addOption(NoTEndfilter);
         options.addOption(NoPoly3GCFilter);
         options.addOption(PolyRunFilter);
@@ -340,14 +349,18 @@ public class SelectUserInput {
         options.addOption(tempMax);
         options.addOption(tempMin);
         options.addOption(input);
+        options.addOption(output);
         options.addOption(reverseMaxPos);
         options.addOption(reverseMinPos);
+        options.addOption(forwardMinPos);
         options.addOption(forwardMaxPos);
         options.addOption(productLengthMax);
         options.addOption(productLengthMin);
         options.addOption(SlidingScale);
         options.addOption(degenMax);
         options.addOption(assayMax);
+        options.addOption(treefile);
+        options.addOption(weightingMethod);
         options.addOption(customWeightInput);
         
         
@@ -711,6 +724,7 @@ public class SelectUserInput {
                 //System.err.println("ERROR: " + "Program needs magnesium concentration, used default: 1.5");
                 select.magnesConc = 1.5;
             }
+            SelectPrimerPipeline.main(select);
         } catch (ParseException exp) {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
             formatter.printHelp("java -jar EcoFunPrimer.jar select <options>", options);
